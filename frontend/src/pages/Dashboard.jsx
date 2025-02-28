@@ -106,14 +106,13 @@ function Dashboard() {
     fileInputRef.current.click();
   };
 
-
   // Handle file selection and upload
   const handleFileChange = async (e) => {
     if (e.target.files.length === 0) return;
-    
+
     const file = e.target.files[0];
     setIsUploading(true);
-    
+
     try {
       // Pass the selected file to your uploadDocument function
       const success = await uploadDocument(file);
@@ -136,7 +135,7 @@ function Dashboard() {
       return;
     }
     const filteredDocs = documents.filter((doc) =>
-      doc.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      doc.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     setSearchedDocument(filteredDocs.length > 0 ? filteredDocs : null);
@@ -218,7 +217,9 @@ function Dashboard() {
             onChange={handleFileChange}
           />
           <button
-            className={`flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ${isUploading ? "opacity-75 cursor-not-allowed" : ""}`}
+            className={`flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ${
+              isUploading ? "opacity-75 cursor-not-allowed" : ""
+            }`}
             onClick={handleUploadDocument}
             disabled={isUploading}
           >

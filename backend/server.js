@@ -15,8 +15,8 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/status", (req, res) => {
-    res.status(200).json({ message: "Server is running" });
-})
+  res.status(200).json({ message: "Server is running" });
+});
 
 app.use("/", fileRouter);
 

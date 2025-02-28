@@ -38,7 +38,7 @@ export const reconnectAccount = async () => {
 
 export const uploadDocument = async (file) => {
   console.log("File: ", file);
-  
+
   const account = getAccount(config);
 
   if (!account.isConnected) {
@@ -119,7 +119,7 @@ export const fetchDocument = async (documentId) => {
     return result;
   } catch (error) {
     toast.error(
-      "Failed to fetch document \n Ensure it exists and you have access.",
+      "Failed to fetch document \n Ensure it exists and you have access."
     );
     return null;
   }
@@ -159,7 +159,7 @@ export const fetchAllUserDocuments = async () => {
   } catch (error) {
     console.error("Error fetching documents:", error);
     toast.error(
-      "Failed to fetch documents \n Ensure you have access to this page.",
+      "Failed to fetch documents \n Ensure you have access to this page."
     );
     return [];
   }

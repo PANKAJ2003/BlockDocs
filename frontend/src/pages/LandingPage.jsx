@@ -1,11 +1,9 @@
 import React, { useEffect } from "react";
 import { Shield, FileCheck, Share2, Lock, Users, Database } from "lucide-react";
 import TopBar from "../components/TopBar";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
-
-
 
 function FeatureCard({ icon: Icon, title, description }) {
   return (
@@ -21,10 +19,10 @@ function FeatureCard({ icon: Icon, title, description }) {
 
 export function LandingPage() {
   const { openConnectModal } = useConnectModal();
-  const {isConnected} = useAccount();
+  const { isConnected } = useAccount();
   const navigate = useNavigate();
   useEffect(() => {
-    if(isConnected) {
+    if (isConnected) {
       navigate("/dashboard");
     }
   }, [isConnected, navigate]);
@@ -51,8 +49,10 @@ export function LandingPage() {
                   immutable record-keeping.
                 </p>
                 <div className="flex gap-4 justify-center">
-                  <button className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                  onClick={openConnectModal}>
+                  <button
+                    className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    onClick={openConnectModal}
+                  >
                     Get Started
                   </button>
                   <button className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
@@ -122,8 +122,10 @@ export function LandingPage() {
               Join thousands of businesses that trust our platform for secure
               document sharing.
             </p>
-            <button className="px-8 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-            onClick={openConnectModal}>
+            <button
+              className="px-8 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              onClick={openConnectModal}
+            >
               Get Started
             </button>
           </div>
