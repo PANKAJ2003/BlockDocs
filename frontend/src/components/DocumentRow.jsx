@@ -7,7 +7,11 @@ import {
   FileText,
   Users,
 } from "lucide-react";
-const DocumentRow = ({ doc }) => (
+const DocumentRow = ({
+  doc,
+  downloadOrSeeFileHandler,
+  openShareWindowHandler,
+}) => (
   <div className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
     <div className="flex items-center justify-between">
       <div className="flex items-center space-x-4 flex-1">
@@ -29,13 +33,28 @@ const DocumentRow = ({ doc }) => (
             <Users className="h-5 w-5 text-gray-600" />
           </div>
         )}
-        <button className="p-2 rounded-full hover:bg-gray-100">
+        <button
+          className="p-2 rounded-full hover:bg-gray-100"
+          onClick={() => {
+            downloadOrSeeFileHandler(doc, "see");
+          }}
+        >
           <Eye className="h-5 w-5 text-gray-600" />
         </button>
-        <button className="p-2 rounded-full hover:bg-gray-100">
+        <button
+          className="p-2 rounded-full hover:bg-gray-100"
+          onClick={() => {
+            openShareWindowHandler(doc);
+          }}
+        >
           <Share2 className="h-5 w-5 text-gray-600" />
         </button>
-        <button className="p-2 rounded-full hover:bg-gray-100">
+        <button
+          className="p-2 rounded-full hover:bg-gray-100"
+          onClick={() => {
+            downloadOrSeeFileHandler(doc, "download");
+          }}
+        >
           <Download className="h-5 w-5 text-gray-600" />
         </button>
         {doc.owner === "You" && (

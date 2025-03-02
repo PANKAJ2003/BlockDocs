@@ -1,51 +1,36 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import BlockDocsLogo from "../assets/BlockDocsLogo.png";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Files, Upload, Search, X } from "lucide-react";
-
+import axios from "axios";
 import { useAccount } from "wagmi";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import {
   uploadDocument,
   fetchAllUserDocuments,
   reconnectAccount,
+  fetchSharedDocuments,
 } from "../utils/contract.jsx";
 import { formatDocumentData } from "../utils/utils.js";
 import DocumentRow from "../components/DocumentRow.jsx";
+import ShareWindow from "../components/ShareWindow.jsx";
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("my-documents");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchedDocument, setSearchedDocument] = useState(null);
   const [myDocuments, setMyDocuments] = useState([]);
+  const [sharedDocumentsWithMe, setSharedDocumentsWithMe] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [isShareWindowOpen, setIsShareWindowOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState(null);
   const account = useAccount();
 
   const fileInputRef = useRef(null);
 
-  const sharedDocuments = [
-    {
-      id: "4",
-      name: "Team_Guidelines.pdf",
-      owner: "Sarah Chen",
-      shared: true,
-      dateModified: "2025-03-15",
-      size: "1.2 MB",
-      type: "PDF",
-    },
-    {
-      id: "5",
-      name: "Marketing_Strategy.pptx",
-      owner: "Michael Brown",
-      shared: true,
-      dateModified: "2025-03-14",
-      size: "3.4 MB",
-      type: "PowerPoint",
-    },
-  ];
-
   const documents =
-    activeTab === "my-documents" ? myDocuments : sharedDocuments;
+    activeTab === "my-documents" ? myDocuments : sharedDocumentsWithMe;
 
   // Function to fetch documents
   const fetchDocuments = async () => {
@@ -62,6 +47,21 @@ function Dashboard() {
     }
   };
 
+  const fetchSharedDocumentsWithMe = async () => {
+    setIsLoading(true);
+    try {
+      const result = await fetchSharedDocuments();
+      console.log(result);
+      if (result) {
+        setSharedDocumentsWithMe(result.map(formatDocumentData));
+      }
+    } catch (error) {
+      console.error("Error fetching shared documents:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const initializeData = async () => {
       // Try to reconnect if needed
@@ -70,6 +70,7 @@ function Dashboard() {
       }
 
       fetchDocuments();
+      fetchSharedDocumentsWithMe();
     };
 
     // Add a small delay to ensure wallet connection is established
@@ -80,26 +81,9 @@ function Dashboard() {
     return () => {
       clearTimeout(timer);
       setMyDocuments([]);
+      setSharedDocumentsWithMe([]);
     };
   }, [account.address, account.isConnected]);
-
-  // Handle document upload with refresh
-  // const handleUploadDocument = async () => {
-  //   setIsUploading(true);
-  //   try {
-  //     const success = await uploadDocument();
-  //     if (success) {
-  //       // Wait a moment for the blockchain transaction to be processed
-  //       setTimeout(() => {
-  //         fetchDocuments(); // Refresh documents after successful upload
-  //       }, 2000); // 2 second delay to ensure transaction is processed
-  //     }
-  //   } catch (error) {
-  //     console.error("Error in upload process:", error);
-  //   } finally {
-  //     setIsUploading(false);
-  //   }
-  // };
 
   const handleUploadDocument = () => {
     // This line opens the file manager/file selection dialog
@@ -129,6 +113,7 @@ function Dashboard() {
     }
   };
 
+  // Handle search functionality
   const handleSearchDocument = (searchQuery) => {
     if (!searchQuery.trim()) {
       setSearchedDocument(null);
@@ -141,8 +126,59 @@ function Dashboard() {
     setSearchedDocument(filteredDocs.length > 0 ? filteredDocs : null);
   };
 
+  const downloadOrSeeFileHandler = async (doc, action) => {
+    toast.promise(
+      (async () => {
+        try {
+          const response = await axios.get(
+            `${import.meta.env.VITE_BASE_URL}/file/${doc.ipfsHash}`,
+            {
+              responseType: "blob", // Get response as a file (binary)
+            }
+          );
+          const blob = response.data;
+          const url = URL.createObjectURL(blob);
+
+          if (action === "see") {
+            window.open(url, "_blank"); // Open file in a new tab
+          } else if (action === "download") {
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = doc.name || "downloadedFile";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+
+          // Release the object URL after some time
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+        } catch (error) {
+          console.error("File not found:", error);
+          throw new Error("File not found");
+        }
+      })(),
+      {
+        loading: "Downloading...",
+        success: <b>Download complete!</b>,
+        error: <b>Failed to download file.</b>,
+      }
+    );
+  };
+
+  const openShareWindowHandler = (doc) => {
+    setSelectedDocument(doc);
+    setIsShareWindowOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {isShareWindowOpen && (
+        <ShareWindow
+          doc={selectedDocument}
+          onClose={() => setIsShareWindowOpen(false)}
+          activeTab={activeTab}
+        />
+      )}
       <div>
         <Toaster
           toastOptions={{
@@ -279,7 +315,12 @@ function Dashboard() {
             </div>
             <div className="space-y-4">
               {searchedDocument.map((doc) => (
-                <DocumentRow key={doc.id} doc={doc} />
+                <DocumentRow
+                  key={doc.id}
+                  doc={doc}
+                  downloadOrSeeFileHandler={downloadOrSeeFileHandler}
+                  openShareWindowHandler={openShareWindowHandler}
+                />
               ))}
             </div>
           </div>
@@ -304,7 +345,14 @@ function Dashboard() {
               </p>
             </div>
           ) : (
-            documents.map((doc) => <DocumentRow key={doc.id} doc={doc} />)
+            documents.map((doc) => (
+              <DocumentRow
+                key={doc.id}
+                doc={doc}
+                downloadOrSeeFileHandler={downloadOrSeeFileHandler}
+                openShareWindowHandler={openShareWindowHandler}
+              />
+            ))
           )}
         </div>
       </main>

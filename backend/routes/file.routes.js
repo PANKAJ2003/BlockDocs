@@ -56,7 +56,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
       success: true,
       metadata: {
         ipfsHash: pinataResponse.IpfsHash,
-        filename: req.file.originalname,
+        fileName: req.file.originalname,
         documentHash: documentHash,
         fileType: req.file.mimetype,
       },

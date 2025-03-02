@@ -1,4 +1,5 @@
 import { DocumentStorageABI } from "../abi/DocumentStorageABI.js";
+import { DocumentSharingABI } from "../abi/DocumentSharingABI.js";
 import { createConfig, http } from "@wagmi/core";
 import { injected } from "@wagmi/connectors";
 import {
@@ -6,12 +7,16 @@ import {
   getAccount,
   readContract,
   reconnect,
+  simulateContract,
 } from "wagmi/actions";
 import { mainnet, polygon, optimism, arbitrum, base } from "wagmi/chains";
 import { anvilChain } from "./customChains.js";
 import toast from "react-hot-toast";
+import axios from "axios";
+import FormData from "form-data";
 
 const documentStorageAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+const documentSharingAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
 
 const config = createConfig({
   chains: [mainnet, polygon, optimism, arbitrum, base, anvilChain],
@@ -37,8 +42,6 @@ export const reconnectAccount = async () => {
 };
 
 export const uploadDocument = async (file) => {
-  console.log("File: ", file);
-
   const account = getAccount(config);
 
   if (!account.isConnected) {
@@ -50,18 +53,36 @@ export const uploadDocument = async (file) => {
       return false;
     }
   }
-
-  const ipfsHash = "QmQvzdefcae";
-  const _thumbNailHash = "AFefadfda";
-  const fileName = "first";
-  const fileType = "pdf";
-  const fileSize = 1024;
-  const isEncrypted = true;
-  const documentHash =
-    "0xf4c67563f8888d8d3e88142d6320ed41e47c7f894af7153ccbdb4fb6d16bc5fc";
-
   try {
-    const result = await writeContract(config, {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/upload`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (!response.data.success) {
+      toast.error("Upload Failed!");
+      return false;
+    }
+
+    // use metadata received
+    const { metadata } = response.data;
+    const ipfsHash = metadata.ipfsHash;
+    const _thumbNailHash = "";
+    const fileName = metadata.fileName;
+    const fileType = metadata.fileType;
+    const fileSize = file.size;
+    const isEncrypted = true;
+    const documentHash = metadata.documentHash;
+
+    // Simulate contract call first to check for potential errors
+    const { request } = await simulateContract(config, {
       abi: DocumentStorageABI,
       address: documentStorageAddress,
       functionName: "uploadDocument",
@@ -75,13 +96,17 @@ export const uploadDocument = async (file) => {
         documentHash,
       ],
     });
+
+    // If simulation succeeds, proceed with actual transaction
+    const result = await writeContract(config, request);
+
     if (result) {
       toast.success("Upload successful");
       return true; // Return true to indicate successful upload
     }
   } catch (error) {
     console.error("Error uploading document:", error);
-    toast.error("Upload failed");
+    toast.error(error.message || "Upload failed");
     return false;
   }
 
@@ -89,10 +114,7 @@ export const uploadDocument = async (file) => {
 };
 
 export const fetchDocument = async (documentId) => {
-  console.log(documentId);
   const account = getAccount(config);
-  console.log(account);
-
   if (!account.isConnected) {
     await reconnectAccount();
     const updatedAccount = getAccount(config);
@@ -125,16 +147,12 @@ export const fetchDocument = async (documentId) => {
   }
 };
 
+// fetch all documents owned by the user
 export const fetchAllUserDocuments = async () => {
   let account = getAccount(config);
-  console.log("Initial Account:", account);
-
   if (!account.isConnected) {
-    console.log("Attempting to reconnect...");
     await reconnectAccount();
     account = getAccount(config); // Get the updated account after reconnecting
-    console.log("Account after reconnect:", account);
-
     if (!account.isConnected) {
       toast.error("Please connect wallet");
       return [];
@@ -161,6 +179,103 @@ export const fetchAllUserDocuments = async () => {
     toast.error(
       "Failed to fetch documents \n Ensure you have access to this page."
     );
+    return [];
+  }
+};
+
+// share doc
+export const shareDocumentWithUserByOwner = async (
+  docId,
+  recipient,
+  isShareable
+) => {
+  let account = getAccount(config);
+  if (!account.isConnected) {
+    await reconnectAccount();
+    account = getAccount(config); // Get the updated account after reconnecting
+    if (!account.isConnected) {
+      toast.error("Please connect wallet");
+      return false;
+    }
+  }
+  try {
+    // Simulate contract call first
+    const { request } = await simulateContract(config, {
+      abi: DocumentSharingABI,
+      address: documentSharingAddress,
+      functionName: "shareDocument",
+      args: [docId, recipient, isShareable],
+    });
+
+    // If simulation succeeds, proceed with the transaction
+    const hash = await writeContract(config, request);
+    toast.success("Document shared successfully");
+    return true;
+  } catch (error) {
+    console.error("Error sharing document:", error);
+    toast.error(error.message || "Failed to share document");
+    return false;
+  }
+};
+
+// share document with user by viewer of document
+export const shareDocumentWithUserByViewer = async (docId, recipient) => {
+  if (!docId || !recipient) {
+    toast.error("Both document ID and recipient address are required");
+    return false;
+  }
+
+  let account = getAccount(config);
+  if (!account.isConnected) {
+    await reconnectAccount();
+    account = getAccount(config); // Get the updated account after reconnecting
+    if (!account.isConnected) {
+      toast.error("Please connect wallet");
+      return false;
+    }
+  }
+
+  try {
+    const { request } = await simulateContract(config, {
+      abi: DocumentSharingABI,
+      address: documentSharingAddress,
+      functionName: "shareDocumentByViewer",
+      args: [docId, recipient],
+    });
+
+    const hash = await writeContract(config, request);
+    toast.success("Document shared successfully");
+    return true;
+  } catch (error) {
+    toast.error("Unauthorized to Share");
+    return false;
+  }
+};
+
+export const fetchSharedDocuments = async () => {
+  let account = getAccount(config);
+  if (!account.isConnected) {
+    await reconnectAccount();
+    account = getAccount(config); // Get the updated account after reconnecting
+    if (!account.isConnected) {
+      toast.error("Please connect wallet");
+      return [];
+    }
+  }
+  try {
+    const sharedDocuments = await readContract(config, {
+      abi: DocumentStorageABI,
+      address: documentStorageAddress,
+      functionName: "getAllSharedDocuments",
+      args: [],
+      chainId: anvilChain.id,
+      account: account,
+    });
+
+    return sharedDocuments;
+  } catch (error) {
+    console.error("Error fetching shared documents:", error);
+    toast.error(error.message || "Failed to fetch shared documents");
     return [];
   }
 };

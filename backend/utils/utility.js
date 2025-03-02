@@ -1,4 +1,4 @@
-import crypto, { verify } from "crypto";
+import crypto from "crypto";
 export const encryptFile = async (fileBuffer) => {
   try {
     const algorithm = "aes-256-cbc";
@@ -41,8 +41,13 @@ export const decryptFile = async (encryptedBuffer, encryptionData) => {
     const ivBuffer = Buffer.from(iv, "hex");
 
     const decipher = crypto.createDecipheriv(algorithm, keyBuffer, ivBuffer);
+
+    // Don't use the first 16 bytes (which is the IV)
+    // Only decrypt the actual encrypted data
+    const encryptedData = encryptedBuffer.slice(16);
+
     const decryptedBuffer = Buffer.concat([
-      decipher.update(encryptedBuffer), // ✅ Now a valid Buffer
+      decipher.update(encryptedData),
       decipher.final(),
     ]);
 
@@ -58,20 +63,20 @@ export const generateDocumentHash = (fileBuffer) => {
     const documentHash = crypto
       .createHash("sha256")
       .update(fileBuffer)
-      .digest("hex");
-    return documentHash;
+      .digest();
+    return `0x${documentHash.toString("hex")}`;
   } catch (error) {
     console.error("Error generating document hash:", error);
   }
 };
 
 export const verifyDocument = (fileBuffer, storedHash) => {
-  if (!fileBuffer || storedHash) {
-    console.error(
-      "❌Failed to verify document! FileBuffer or storedHash is missing"
-    );
-  }
   try {
+    if (!fileBuffer || !storedHash) {
+      throw error(
+        "Failed to verify document! Both fileBuffer and storedHash required"
+      );
+    }
     const documentHash = generateDocumentHash(fileBuffer);
     if (documentHash !== storedHash) {
       return false;

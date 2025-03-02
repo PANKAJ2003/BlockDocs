@@ -14,16 +14,8 @@ export const DocumentStorageABI = [
     type: "function",
     name: "addSharedDocumentByViewer",
     inputs: [
-      {
-        name: "_viewer",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "_docId",
-        type: "uint256",
-        internalType: "uint256",
-      },
+      { name: "_viewer", type: "address", internalType: "address" },
+      { name: "_docId", type: "uint256", internalType: "uint256" },
     ],
     outputs: [],
     stateMutability: "nonpayable",
@@ -32,16 +24,8 @@ export const DocumentStorageABI = [
     type: "function",
     name: "addSharedDocumentToUserByOwner",
     inputs: [
-      {
-        name: "_viewer",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "_docId",
-        type: "uint256",
-        internalType: "uint256",
-      },
+      { name: "_viewer", type: "address", internalType: "address" },
+      { name: "_docId", type: "uint256", internalType: "uint256" },
     ],
     outputs: [],
     stateMutability: "nonpayable",
@@ -49,87 +33,48 @@ export const DocumentStorageABI = [
   {
     type: "function",
     name: "deleteDocument",
-    inputs: [
-      {
-        name: "_docId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
+    inputs: [{ name: "_docId", type: "uint256", internalType: "uint256" }],
     outputs: [],
     stateMutability: "nonpayable",
   },
   {
     type: "function",
     name: "getAllSharedDocuments",
-    inputs: [
-      {
-        name: "_viewer",
-        type: "address",
-        internalType: "address",
-      },
-    ],
+    inputs: [],
     outputs: [
       {
         name: "",
         type: "tuple[]",
         internalType: "struct DocumentStorage.Document[]",
         components: [
-          {
-            name: "ipfsHash",
-            type: "string",
-            internalType: "string",
-          },
+          { name: "id", type: "uint256", internalType: "uint256" },
+          { name: "ipfsHash", type: "string", internalType: "string" },
           {
             name: "thumbNailHash",
             type: "string",
             internalType: "string",
           },
-          {
-            name: "owner",
-            type: "address",
-            internalType: "address",
-          },
+          { name: "owner", type: "address", internalType: "address" },
           {
             name: "timestamp",
             type: "uint256",
             internalType: "uint256",
           },
-          {
-            name: "fileName",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "fileType",
-            type: "string",
-            internalType: "string",
-          },
+          { name: "fileName", type: "string", internalType: "string" },
+          { name: "fileType", type: "string", internalType: "string" },
           {
             name: "fileSize",
             type: "uint256",
             internalType: "uint256",
           },
-          {
-            name: "isEncrypted",
-            type: "bool",
-            internalType: "bool",
-          },
+          { name: "isEncrypted", type: "bool", internalType: "bool" },
           {
             name: "documentHash",
             type: "bytes32",
             internalType: "bytes32",
           },
-          {
-            name: "isVerified",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isDeleted",
-            type: "bool",
-            internalType: "bool",
-          },
+          { name: "isVerified", type: "bool", internalType: "bool" },
+          { name: "isDeleted", type: "bool", internalType: "bool" },
           {
             name: "isSharableByViewer",
             type: "bool",
@@ -143,93 +88,48 @@ export const DocumentStorageABI = [
   {
     type: "function",
     name: "getAllSharedDocumentsIdToUser",
-    inputs: [
-      {
-        name: "_viewer",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256[]",
-        internalType: "uint256[]",
-      },
-    ],
+    inputs: [{ name: "_viewer", type: "address", internalType: "address" }],
+    outputs: [{ name: "", type: "uint256[]", internalType: "uint256[]" }],
     stateMutability: "view",
   },
   {
     type: "function",
     name: "getDocument",
-    inputs: [
-      {
-        name: "_docId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
+    inputs: [{ name: "_docId", type: "uint256", internalType: "uint256" }],
     outputs: [
       {
         name: "",
         type: "tuple",
         internalType: "struct DocumentStorage.Document",
         components: [
-          {
-            name: "ipfsHash",
-            type: "string",
-            internalType: "string",
-          },
+          { name: "id", type: "uint256", internalType: "uint256" },
+          { name: "ipfsHash", type: "string", internalType: "string" },
           {
             name: "thumbNailHash",
             type: "string",
             internalType: "string",
           },
-          {
-            name: "owner",
-            type: "address",
-            internalType: "address",
-          },
+          { name: "owner", type: "address", internalType: "address" },
           {
             name: "timestamp",
             type: "uint256",
             internalType: "uint256",
           },
-          {
-            name: "fileName",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "fileType",
-            type: "string",
-            internalType: "string",
-          },
+          { name: "fileName", type: "string", internalType: "string" },
+          { name: "fileType", type: "string", internalType: "string" },
           {
             name: "fileSize",
             type: "uint256",
             internalType: "uint256",
           },
-          {
-            name: "isEncrypted",
-            type: "bool",
-            internalType: "bool",
-          },
+          { name: "isEncrypted", type: "bool", internalType: "bool" },
           {
             name: "documentHash",
             type: "bytes32",
             internalType: "bytes32",
           },
-          {
-            name: "isVerified",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isDeleted",
-            type: "bool",
-            internalType: "bool",
-          },
+          { name: "isVerified", type: "bool", internalType: "bool" },
+          { name: "isDeleted", type: "bool", internalType: "bool" },
           {
             name: "isSharableByViewer",
             type: "bool",
@@ -243,33 +143,15 @@ export const DocumentStorageABI = [
   {
     type: "function",
     name: "getDocumentOwner",
-    inputs: [
-      {
-        name: "_docId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-    ],
+    inputs: [{ name: "_docId", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
     stateMutability: "view",
   },
   {
     type: "function",
     name: "getMsgSender",
     inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-    ],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
     stateMutability: "view",
   },
   {
@@ -282,61 +164,34 @@ export const DocumentStorageABI = [
         type: "tuple[]",
         internalType: "struct DocumentStorage.Document[]",
         components: [
-          {
-            name: "ipfsHash",
-            type: "string",
-            internalType: "string",
-          },
+          { name: "id", type: "uint256", internalType: "uint256" },
+          { name: "ipfsHash", type: "string", internalType: "string" },
           {
             name: "thumbNailHash",
             type: "string",
             internalType: "string",
           },
-          {
-            name: "owner",
-            type: "address",
-            internalType: "address",
-          },
+          { name: "owner", type: "address", internalType: "address" },
           {
             name: "timestamp",
             type: "uint256",
             internalType: "uint256",
           },
-          {
-            name: "fileName",
-            type: "string",
-            internalType: "string",
-          },
-          {
-            name: "fileType",
-            type: "string",
-            internalType: "string",
-          },
+          { name: "fileName", type: "string", internalType: "string" },
+          { name: "fileType", type: "string", internalType: "string" },
           {
             name: "fileSize",
             type: "uint256",
             internalType: "uint256",
           },
-          {
-            name: "isEncrypted",
-            type: "bool",
-            internalType: "bool",
-          },
+          { name: "isEncrypted", type: "bool", internalType: "bool" },
           {
             name: "documentHash",
             type: "bytes32",
             internalType: "bytes32",
           },
-          {
-            name: "isVerified",
-            type: "bool",
-            internalType: "bool",
-          },
-          {
-            name: "isDeleted",
-            type: "bool",
-            internalType: "bool",
-          },
+          { name: "isVerified", type: "bool", internalType: "bool" },
+          { name: "isDeleted", type: "bool", internalType: "bool" },
           {
             name: "isSharableByViewer",
             type: "bool",
@@ -350,60 +205,26 @@ export const DocumentStorageABI = [
   {
     type: "function",
     name: "getUsersHavingDocAccess",
-    inputs: [
-      {
-        name: "_docId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "address[]",
-        internalType: "address[]",
-      },
-    ],
+    inputs: [{ name: "_docId", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "address[]", internalType: "address[]" }],
     stateMutability: "view",
   },
   {
     type: "function",
     name: "hasDocAccess",
     inputs: [
-      {
-        name: "_docId",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "_viewer",
-        type: "address",
-        internalType: "address",
-      },
+      { name: "_docId", type: "uint256", internalType: "uint256" },
+      { name: "_viewer", type: "address", internalType: "address" },
     ],
-    outputs: [
-      {
-        name: "",
-        type: "bool",
-        internalType: "bool",
-      },
-    ],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
     stateMutability: "view",
   },
   {
     type: "function",
     name: "removeSharedDocumentForUser",
     inputs: [
-      {
-        name: "_viewer",
-        type: "address",
-        internalType: "address",
-      },
-      {
-        name: "_docId",
-        type: "uint256",
-        internalType: "uint256",
-      },
+      { name: "_viewer", type: "address", internalType: "address" },
+      { name: "_docId", type: "uint256", internalType: "uint256" },
     ],
     outputs: [],
     stateMutability: "nonpayable",
@@ -412,36 +233,16 @@ export const DocumentStorageABI = [
     type: "function",
     name: "uploadDocument",
     inputs: [
-      {
-        name: "_ipfsHash",
-        type: "string",
-        internalType: "string",
-      },
+      { name: "_ipfsHash", type: "string", internalType: "string" },
       {
         name: "_thumbNailHash",
         type: "string",
         internalType: "string",
       },
-      {
-        name: "_fileName",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "_fileType",
-        type: "string",
-        internalType: "string",
-      },
-      {
-        name: "_fileSize",
-        type: "uint256",
-        internalType: "uint256",
-      },
-      {
-        name: "_isEncrypted",
-        type: "bool",
-        internalType: "bool",
-      },
+      { name: "_fileName", type: "string", internalType: "string" },
+      { name: "_fileType", type: "string", internalType: "string" },
+      { name: "_fileSize", type: "uint256", internalType: "uint256" },
+      { name: "_isEncrypted", type: "bool", internalType: "bool" },
       {
         name: "_documentHash",
         type: "bytes32",
