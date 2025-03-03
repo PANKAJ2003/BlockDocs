@@ -1,37 +1,76 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
 import {
   shareDocumentWithUserByOwner,
   shareDocumentWithUserByViewer,
 } from "../utils/contract.jsx";
+
 const ShareWindow = ({ doc, onClose, activeTab }) => {
   const [address, setAddress] = useState("");
   const [allowResharing, setAllowResharing] = useState(false);
+  const [isResharable, setIsResharable] = useState();
 
-  const submitHandler = async (event) => {
-    event.preventDefault();
+  // UseEffect to set resharing permissions based on the active tab
+  useEffect(() => {
     if (activeTab === "my-documents") {
-      await shareDocumentWithUserByOwner(doc.id, address, allowResharing);
-    } else {
-      await shareDocumentWithUserByViewer(doc.id, address);
+      setIsResharable(true);
+    } else if (activeTab === "shared-with-me") {
+      setIsResharable(doc.isSharableByViewer);
     }
+  }, [activeTab, doc.isSharableByViewer]);
+
+  // Validate the Ethereum address format
+  const isValidAddress = (address) => {
+    const regex = /^0x[a-fA-F0-9]{40}$/;
+    return regex.test(address);
+  };
+
+  const submitHandler = useCallback(
+    async (event) => {
+      event.preventDefault();
+
+      if (!address.trim()) {
+        alert("Please enter a valid wallet address");
+        return;
+      }
+
+      if (!isValidAddress(address)) {
+        alert("Please enter a valid Ethereum address");
+        return;
+      }
+
+      // Show loading or validation here if needed
+      if (activeTab === "my-documents") {
+        await shareDocumentWithUserByOwner(doc.id, address, allowResharing);
+      } else {
+        await shareDocumentWithUserByViewer(doc.id, address);
+      }
+      onClose();
+    },
+    [activeTab, doc.id, address, allowResharing, onClose]
+  );
+
+  const handleClose = (e) => {
+    e.stopPropagation();
     onClose();
   };
 
+  const handleAddressChange = (e) => setAddress(e.target.value);
+
+  const handleResharingChange = () => setAllowResharing((prev) => !prev);
+
   return (
     <div
-      onClick={onClose}
+      onClick={handleClose}
       className="fixed inset-0 bg-black/30 backdrop-blur-md flex justify-center items-center z-10"
     >
       <div
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
+        onClick={(e) => e.stopPropagation()}
         className="bg-white w-xl max-w-full rounded-2xl shadow-xl p-6 transform transition-all"
       >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Share Document</h2>
-          <div onClick={onClose}>
+          <div onClick={handleClose}>
             <X className="w-6 h-6 text-gray-500 hover:text-gray-700 cursor-pointer" />
           </div>
         </div>
@@ -42,14 +81,14 @@ const ShareWindow = ({ doc, onClose, activeTab }) => {
               htmlFor="recipient-address"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Recipient's Wallet Address
+              Recipient&apos;s Wallet Address
             </label>
             <div className="relative">
               <input
                 type="text"
                 id="recipient-address"
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                onChange={handleAddressChange}
                 required
                 placeholder="0x1234...abcd"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
@@ -63,7 +102,8 @@ const ShareWindow = ({ doc, onClose, activeTab }) => {
                 type="checkbox"
                 id="allow-resharing"
                 checked={allowResharing}
-                onChange={() => setAllowResharing(!allowResharing)}
+                onChange={handleResharingChange}
+                disabled={!isResharable}
                 className="peer sr-only"
               />
               <label
@@ -86,7 +126,13 @@ const ShareWindow = ({ doc, onClose, activeTab }) => {
                 )}
               </label>
             </div>
-            <span className="text-gray-700 font-medium">Allow resharing</span>
+            <span
+              className={`font-medium ${
+                isResharable ? "text-gray-700 " : "text-gray-400"
+              }`}
+            >
+              Allow resharing
+            </span>
           </div>
 
           <button

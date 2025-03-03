@@ -26,6 +26,7 @@ export const DocumentStorageABI = [
     inputs: [
       { name: "_viewer", type: "address", internalType: "address" },
       { name: "_docId", type: "uint256", internalType: "uint256" },
+      { name: "_isSharable", type: "bool", internalType: "bool" },
     ],
     outputs: [],
     stateMutability: "nonpayable",
@@ -145,6 +146,13 @@ export const DocumentStorageABI = [
     name: "getDocumentOwner",
     inputs: [{ name: "_docId", type: "uint256", internalType: "uint256" }],
     outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getIsSharableByViewer",
+    inputs: [{ name: "_docId", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
     stateMutability: "view",
   },
   {

@@ -10,6 +10,7 @@ import {
   fetchAllUserDocuments,
   reconnectAccount,
   fetchSharedDocuments,
+  deleteDocument,
 } from "../utils/contract.jsx";
 import { formatDocumentData } from "../utils/utils.js";
 import DocumentRow from "../components/DocumentRow.jsx";
@@ -119,7 +120,7 @@ function Dashboard() {
       return;
     }
     const filteredDocs = documents.filter((doc) =>
-      doc.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      doc.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     setSearchedDocument(filteredDocs.length > 0 ? filteredDocs : null);
@@ -133,7 +134,7 @@ function Dashboard() {
             `${import.meta.env.VITE_BASE_URL}/file/${doc.ipfsHash}`,
             {
               responseType: "blob", // Get response as a file (binary)
-            },
+            }
           );
           const blob = response.data;
           const url = URL.createObjectURL(blob);
@@ -160,8 +161,29 @@ function Dashboard() {
         loading: "Downloading...",
         success: <b>Download complete!</b>,
         error: <b>Failed to download file.</b>,
-      },
+      }
     );
+  };
+
+  // delete a file
+  const deleteFileHandler = async (doc) => {
+    try {
+      await deleteDocument(doc.id);
+      const response = await axios.delete(
+        `${import.meta.env.VITE_BASE_URL}/file/${doc.ipfsHash}`,
+        {
+          params: {
+            ipfsHash: doc.ipfsHash,
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success("File deleted successfully");
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+      throw new Error("Failed to delete file", error);
+    }
   };
 
   const openShareWindowHandler = (doc) => {
@@ -190,7 +212,11 @@ function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <img src={BlockDocsLogo} alt="BlockDocs Logo" className="h-10 w-auto" />
+              <img
+                src={BlockDocsLogo}
+                alt="BlockDocs Logo"
+                className="h-10 w-auto"
+              />
             </div>
             <div className="flex items-center space-x-4">
               <div className="relative">
@@ -316,6 +342,7 @@ function Dashboard() {
                   doc={doc}
                   downloadOrSeeFileHandler={downloadOrSeeFileHandler}
                   openShareWindowHandler={openShareWindowHandler}
+                  deleteFileHandler={deleteFileHandler}
                 />
               ))}
             </div>
@@ -347,6 +374,7 @@ function Dashboard() {
                 doc={doc}
                 downloadOrSeeFileHandler={downloadOrSeeFileHandler}
                 openShareWindowHandler={openShareWindowHandler}
+                deleteFileHandler={deleteFileHandler}
               />
             ))
           )}

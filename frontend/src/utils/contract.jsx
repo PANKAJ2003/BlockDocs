@@ -279,3 +279,32 @@ export const fetchSharedDocuments = async () => {
     return [];
   }
 };
+
+// delete a document
+export const deleteDocument = async (docId) => {
+  let account = getAccount(config);
+  if (!account.isConnected) {
+    await reconnectAccount();
+    account = getAccount(config); // Get the updated account after reconnecting
+    if (!account.isConnected) {
+      toast.error("Please connect wallet");
+      return false;
+    }
+  }
+
+  try {
+    const { request } = await simulateContract(config, {
+      abi: DocumentStorageABI,
+      address: documentStorageAddress,
+      functionName: "deleteDocument",
+      args: [docId],
+    });
+
+    const hash = await writeContract(config, request);
+    toast.success("Document deleted successfully");
+    return true;
+  } catch (error) {
+    toast.error("Unauthorized to delete");
+    return false;
+  }
+};

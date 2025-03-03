@@ -6,7 +6,11 @@ import {
   generateDocumentHash,
   verifyDocument,
 } from "../utils/utility.js";
-import { uploadFileToPinata, getFileFromPinata, deleteFileFromPinata } from "../utils/pinata.js";
+import {
+  uploadFileToPinata,
+  getFileFromPinata,
+  deleteFileFromPinata,
+} from "../utils/pinata.js";
 import FileModel from "../models/fileModel.js";
 
 const router = express.Router();
@@ -73,7 +77,7 @@ router.get("/file/:ipfsHash", async (req, res) => {
   try {
     const { ipfsHash } = req.params;
     // retrive file metadata stored in DB
-    const fileMetadata = await FileModel.findOne({ ipfsHash });
+    const fileMetadata = await FileModel.findOneAndDelete({ ipfsHash });
     if (!fileMetadata) return res.status(404).json({ error: "File not found" });
 
     // Get encrypted data as Buffer
@@ -122,7 +126,12 @@ router.get("/file/:ipfsHash", async (req, res) => {
 router.delete("/file/:ipfsHash", async (req, res) => {
   const { ipfsHash } = req.params;
   try {
+    const fileIsPresent = await FileModel.findOne({ ipfsHash });
+    if (!fileIsPresent) {
+      return res.status(400).json({ error: "File not found" });
+    }
     await deleteFileFromPinata(ipfsHash);
+    await FileModel.deleteOne({ ipfsHash });
     return res.status(200).json({ message: "File deleted successfully" });
   } catch (error) {
     console.error("Delete error:", error);
