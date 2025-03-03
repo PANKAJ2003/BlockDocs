@@ -11,10 +11,8 @@ const ShareWindow = ({ doc, onClose, activeTab }) => {
   const submitHandler = async (event) => {
     event.preventDefault();
     if (activeTab === "my-documents") {
-      console.log("Shared by owner");
       await shareDocumentWithUserByOwner(doc.id, address, allowResharing);
     } else {
-      console.log("Shared by viewer");
       await shareDocumentWithUserByViewer(doc.id, address);
     }
     onClose();

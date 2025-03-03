@@ -6,7 +6,7 @@ import {
   generateDocumentHash,
   verifyDocument,
 } from "../utils/utility.js";
-import { uploadFileToPinata, getFileFromPinata } from "../utils/pinata.js";
+import { uploadFileToPinata, getFileFromPinata, deleteFileFromPinata } from "../utils/pinata.js";
 import FileModel from "../models/fileModel.js";
 
 const router = express.Router();
@@ -112,6 +112,20 @@ router.get("/file/:ipfsHash", async (req, res) => {
     return res.send(decryptedBuffer);
   } catch (error) {
     console.error("Download error:", error);
+    return res
+      .status(500)
+      .json({ error: "Server error", details: error.message });
+  }
+});
+
+// Delete file from Pinata
+router.delete("/file/:ipfsHash", async (req, res) => {
+  const { ipfsHash } = req.params;
+  try {
+    await deleteFileFromPinata(ipfsHash);
+    return res.status(200).json({ message: "File deleted successfully" });
+  } catch (error) {
+    console.error("Delete error:", error);
     return res
       .status(500)
       .json({ error: "Server error", details: error.message });

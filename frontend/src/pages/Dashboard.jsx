@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import BlockDocsLogo from "../assets/BlockDocsLogo.png";
+import BlockDocsLogo from "../assets/BlockDocsLogo.svg";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Files, Upload, Search, X } from "lucide-react";
 import axios from "axios";
@@ -51,7 +51,6 @@ function Dashboard() {
     setIsLoading(true);
     try {
       const result = await fetchSharedDocuments();
-      console.log(result);
       if (result) {
         setSharedDocumentsWithMe(result.map(formatDocumentData));
       }
@@ -120,7 +119,7 @@ function Dashboard() {
       return;
     }
     const filteredDocs = documents.filter((doc) =>
-      doc.name.toLowerCase().includes(searchQuery.toLowerCase())
+      doc.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
     setSearchedDocument(filteredDocs.length > 0 ? filteredDocs : null);
@@ -134,7 +133,7 @@ function Dashboard() {
             `${import.meta.env.VITE_BASE_URL}/file/${doc.ipfsHash}`,
             {
               responseType: "blob", // Get response as a file (binary)
-            }
+            },
           );
           const blob = response.data;
           const url = URL.createObjectURL(blob);
@@ -161,7 +160,7 @@ function Dashboard() {
         loading: "Downloading...",
         success: <b>Download complete!</b>,
         error: <b>Failed to download file.</b>,
-      }
+      },
     );
   };
 
@@ -191,10 +190,7 @@ function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <Files className="h-8 w-8 text-blue-600" />
-              <h1 className="ml-2 text-xl font-bold text-gray-900">
-                SecureChainDocs
-              </h1>
+              <img src={BlockDocsLogo} alt="BlockDocs Logo" className="h-10 w-auto" />
             </div>
             <div className="flex items-center space-x-4">
               <div className="relative">

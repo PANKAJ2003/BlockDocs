@@ -35,18 +35,27 @@ export async function getFileFromPinata(ipfsHash) {
   try {
     const response = await pinata.gateways.get(ipfsHash);
 
-    // Directly use response.data as the Blob
+    if (!response || !response.data) {
+      throw new Error("File not found on Pinata");
+    }
+
     const blobData = response.data;
-
-    // Convert the Blob to an ArrayBuffer
     const arrayBuffer = await blobData.arrayBuffer();
-
-    // Now create a Buffer from the ArrayBuffer
     const buffer = Buffer.from(arrayBuffer);
 
-    // Continue processing with 'buffer'
-    return buffer; // or further handling
+    return buffer;
   } catch (error) {
-    console.log("Error getting file from Pinata:", error);
+    console.error("Error getting file from Pinata:", error.message || error);
+    throw new Error("Failed to get file from Pinata");
+  }
+}
+
+// delete file from pinata
+export async function deleteFileFromPinata(ipfsHash) {
+  try {
+    const unpin = await pinata.unpin([ipfsHash]);
+  } catch (error) {
+    console.error("Error deleting file from Pinata:", error);
+    return null;
   }
 }

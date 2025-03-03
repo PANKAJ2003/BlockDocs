@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Shield, FileCheck, Share2, Lock, Users, Database } from "lucide-react";
 import TopBar from "../components/TopBar";
+import backgroundImage from "../assets/backgroundImage.avif";
 import { useNavigate } from "react-router-dom";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
@@ -66,7 +67,7 @@ export function LandingPage() {
           {/* Background Image */}
           <div className="absolute inset-0 -z-10 opacity-10">
             <img
-              src="https://images.unsplash.com/photo-1639322537228-f710d846310a?auto=format&fit=crop&q=80"
+              src={backgroundImage}
               alt="Background pattern"
               className="w-full h-full object-cover"
             />
