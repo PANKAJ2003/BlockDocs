@@ -126,7 +126,7 @@ router.get("/file/:ipfsHash", async (req, res) => {
 router.delete("/file/:ipfsHash", async (req, res) => {
   const { ipfsHash } = req.params;
   try {
-    const fileIsPresent = await FileModel.findOne({ ipfsHash });
+    const fileIsPresent = await FileModel.findOneAndDelete({ ipfsHash });
     if (!fileIsPresent) {
       return res.status(400).json({ error: "File not found" });
     }
