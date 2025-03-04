@@ -170,15 +170,11 @@ function Dashboard() {
     try {
       await deleteDocument(doc.id);
       const response = await axios.delete(
-        `${import.meta.env.VITE_BASE_URL}/file/${doc.ipfsHash}`,
-        {
-          params: {
-            ipfsHash: doc.ipfsHash,
-          },
-        }
+        `${import.meta.env.VITE_BASE_URL}/file/${doc.ipfsHash}`
       );
       if (response.status === 200) {
-        toast.success("File deleted successfully");
+        const newDocuments = documents.filter((d) => d.id !== doc.id);
+        setMyDocuments(newDocuments);
       }
     } catch (error) {
       toast.error("Something went wrong");
